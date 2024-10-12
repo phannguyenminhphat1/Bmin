@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model food_categories {
+  category_id   Int     @id @default(autoincrement())
+  category_name String? @unique @db.VarChar(255)
+  description   String?
+  image_url     String? @db.VarChar(255)
+  foods         foods[]
+}
+
+model foods {
+  food_id         Int              @id @default(autoincrement())
+  food_name       String?          @unique @db.VarChar(255)
+  description     String?
+  category_id     Int?
+  image_url       String?          @db.VarChar(500)
+  created_at      DateTime?        @db.Timestamp(6)
+  updated_at      DateTime?        @db.Timestamp(6)
+  food_categories food_categories? @relation(fields: [category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction)
+  store_foods     store_foods[]
+}
+
+model payments {
+  payment_id     Int       @id @default(autoincrement())
+  cart_id        Int?
+  payment_method String?   @db.VarChar(50)
+  payment_status String?   @db.VarChar(50)
+  discount       Decimal?  @db.Decimal(10, 2)
+  payment_amount Decimal?  @db.Decimal(10, 2)
+  created_at     DateTime? @db.Timestamp(6)
+  updated_at     DateTime? @db.Timestamp(6)
+  cart           cart?     @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model store_foods {
+  store_foods_id Int          @id @default(autoincrement())
+  store_id       Int?
+  food_id        Int?
+  stock_quantity Int?
+  price          Decimal?     @db.Decimal(10, 2)
+  cart_items     cart_items[]
+  purchases      purchases[]
+  foods          foods?       @relation(fields: [food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction)
+  stores         stores?      @relation(fields: [store_id], references: [store_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model stores {
+  store_id     Int           @id @default(autoincrement())
+  store_name   String?       @db.VarChar(255)
+  address      String?
+  phone_number String?       @db.VarChar(50)
+  created_at   DateTime?     @db.Timestamp(6)
+  updated_at   DateTime?     @db.Timestamp(6)
+  store_foods  store_foods[]
+}
+
+model users {
+  user_id      Int         @id @default(autoincrement())
+  username     String?     @unique @db.VarChar(255)
+  email        String?     @unique @db.VarChar(255)
+  password     String?     @db.VarChar(255)
+  full_name    String?     @db.VarChar(255)
+  phone_number String?     @db.VarChar(50)
+  address      String?
+  role         String?     @db.VarChar(50)
+  created_at   DateTime?   @db.Timestamp(6)
+  updated_at   DateTime?   @db.Timestamp(6)
+  cart         cart[]
+  purchases    purchases[]
+}
+
+model cart {
+  cart_id        Int          @id @default(autoincrement())
+  user_id        Int?
+  total_amount   Decimal?     @db.Decimal(10, 2)
+  total_quantity Int?
+  created_at     DateTime?    @db.Timestamp(6)
+  updated_at     DateTime?    @db.Timestamp(6)
+  is_completed   Boolean?     @default(false)
+  users          users?       @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  cart_items     cart_items[]
+  payments       payments[]
+}
+
+model cart_items {
+  cart_item_id   Int          @id @default(autoincrement())
+  cart_id        Int?
+  store_foods_id Int?
+  quantity       Int?
+  price          Decimal?     @db.Decimal(10, 2)
+  total_price    Decimal?     @db.Decimal(10, 2)
+  cart           cart?        @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade, onUpdate: NoAction)
+  store_foods    store_foods? @relation(fields: [store_foods_id], references: [store_foods_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model purchases {
+  purchases_id   Int          @id @default(autoincrement())
+  user_id        Int?
+  store_foods_id Int?
+  total_price    Decimal?     @db.Decimal(10, 2)
+  buy_count      Int?
+  status         Int?
+  created_at     DateTime?    @db.Timestamp(6)
+  updated_at     DateTime?    @db.Timestamp(6)
+  store_foods    store_foods? @relation(fields: [store_foods_id], references: [store_foods_id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?       @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}

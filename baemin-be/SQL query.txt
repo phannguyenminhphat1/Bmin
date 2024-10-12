@@ -1,0 +1,260 @@
+CREATE TABLE food_categories (
+    category_id SERIAL PRIMARY KEY,
+    category_name VARCHAR(255) UNIQUE,
+    description TEXT
+);
+ALTER TABLE food_categories ADD COLUMN image_url VARCHAR(255);
+
+CREATE TABLE foods (
+    food_id SERIAL PRIMARY KEY,
+    food_name VARCHAR(255) UNIQUE,
+    description TEXT,
+    category_id INT REFERENCES food_categories(category_id),
+    image_url VARCHAR(500),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE,
+    email VARCHAR(255) UNIQUE,
+    password VARCHAR(255),
+    full_name VARCHAR(255),
+    phone_number VARCHAR(50),
+    address TEXT,
+    role VARCHAR(50),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE TABLE stores (
+    store_id SERIAL PRIMARY KEY,
+    store_name VARCHAR(255),
+    address TEXT,
+    phone_number VARCHAR(50),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE TABLE store_foods (
+	store_foods_id SERIAL PRIMARY KEY,
+    store_id INT REFERENCES stores(store_id),
+    food_id INT REFERENCES foods(food_id),
+    stock_quantity INT,  -- Số lượng tồn kho tại cửa hàng
+    price DECIMAL(10, 2) -- Giá bán của món ăn tại cửa hàng
+);
+
+CREATE TABLE cart (
+    cart_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    total_amount DECIMAL(10, 2),  -- Tổng số tiền của đơn hàng
+    total_quantity INT,  -- Tổng số lượng sản phẩm của đơn hàng
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+ALTER TABLE cart ADD COLUMN is_completed BOOLEAN DEFAULT FALSE;
+
+
+CREATE TABLE cart_items (
+    cart_item_id SERIAL PRIMARY KEY,
+    cart_id INT REFERENCES cart(cart_id) ON DELETE CASCADE,
+    store_foods_id INT REFERENCES store_foods(store_foods_id),
+    quantity INT,  -- Số lượng món ăn trong giỏ hàng&
+    price DECIMAL(10, 2),  -- Giá của món ăn tại thời điểm mua
+    total_price DECIMAL(10, 2)  -- Tổng tiền cho món ăn này (quantity * price)
+);
+
+CREATE TABLE payments (
+    payment_id SERIAL PRIMARY KEY,
+    cart_id INT REFERENCES cart(cart_id) ON DELETE CASCADE,
+    payment_method VARCHAR(50),  -- 'credit_card', 'paypal', 'cash_on_delivery'
+    payment_status VARCHAR(50),  -- 'pending', 'completed', 'failed'
+    discount DECIMAL(10, 2),
+    payment_amount DECIMAL(10, 2),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+-- Thêm dữ liệu vào bảng food_categories (nếu chưa có)
+INSERT INTO food_categories (category_name, description,image_url)
+VALUES
+('Gà', 'Các món ăn làm từ gà','https://i.ndtvimg.com/i/2015-07/10-best-party-snacks-3_625x350_41438343635.jpg'),
+('Bún', 'Các loại bún đa dạng','https://giadinh.mediacdn.vn/zoom/700_438/296230595582509056/2024/5/26/avatar1716685660405-17166856619351713705120.jpg'),
+('Mì', 'Các món ăn làm từ mì','https://afamilycdn.com/150157425591193600/2023/4/26/avatar1682520030300-1682520031113536509689.jpg'),
+('Cơm', 'Các món ăn từ cơm','https://giadinh.mediacdn.vn/296230595582509056/2023/12/10/avatar1702200334990-17022003352921084215932.jpg'),
+('Trà sữa', 'Các loại trà sữa đa dạng','https://i.pinimg.com/736x/10/f3/a5/10f3a5909919af833914121182786eef.jpg');
+
+-- Thêm dữ liệu vào bảng foods (mỗi loại 5 món ăn)
+INSERT INTO foods (food_name, description, category_id, image_url, created_at, updated_at)
+VALUES
+-- Các món ăn thuộc category "Gà"
+('Gà rán', 'Gà rán giòn rụm', 1, 'https://i.pinimg.com/originals/bb/c3/1a/bbc31a772affac6658a9cc3d3e711214.jpg', NOW(), NOW()),
+('Gà nướng', 'Gà nướng thấm vị', 1, 'https://i.pinimg.com/originals/d5/65/dd/d565dd03f09db18329496734de0e74e5.jpg', NOW(), NOW()),
+('Gà hấp lá chanh', 'Gà hấp thơm ngon với lá chanh', 1, 'https://i.pinimg.com/originals/15/7a/a4/157aa439f66ae947e9f94c3eb87f6808.jpg', NOW(), NOW()),
+('Gà kho gừng', 'Gà kho với gừng cay nồng', 1, 'https://i.pinimg.com/originals/15/7a/a4/157aa439f66ae947e9f94c3eb87f6808.jpg', NOW(), NOW()),
+('Gà xé phay', 'Gà xé phay trộn với rau răm', 1, 'https://i.pinimg.com/originals/69/1b/25/691b25186267314f9d8c39a26a3e9d74.jpg', NOW(), NOW()),
+
+-- Các món ăn thuộc category "Bún"
+('Bún bò Huế', 'Bún bò Huế thơm ngon, đậm đà', 2, 'https://i.pinimg.com/originals/f4/41/e4/f441e4d163c5cc83ce64f29098ad34fa.jpg', NOW(), NOW()),
+('Bún thịt nướng', 'Bún thịt nướng, ăn kèm rau sống', 2, 'https://i.pinimg.com/originals/f5/11/ba/f511baf37cdf18fc63eb195c659ea6f1.jpg', NOW(), NOW()),
+('Bún riêu cua', 'Bún riêu với cua và rau thơm', 2, 'https://i.pinimg.com/originals/63/e0/5d/63e05df3f679c819b055794f290ccc42.jpg', NOW(), NOW()),
+('Bún chả Hà Nội', 'Bún chả đặc trưng của Hà Nội', 2, 'https://i.pinimg.com/originals/fa/a1/f9/faa1f9cc895c129b93ce35d83b7540ab.jpg', NOW(), NOW()),
+('Bún mắm', 'Bún mắm đậm đà, ăn kèm rau sống', 2, 'https://i.pinimg.com/originals/71/10/d9/7110d9ccb3c23d4974d86e1e816d6971.jpg', NOW(), NOW()),
+
+-- Các món ăn thuộc category "Mì"
+('Mì xào hải sản', 'Mì xào với hải sản tươi ngon', 3, 'https://i.pinimg.com/originals/23/6f/b3/236fb39e2c2638ed19b8060c5156dcb9.jpg', NOW(), NOW()),
+('Mì Quảng', 'Món mì đặc trưng của Quảng Nam', 3, 'https://i.pinimg.com/originals/fa/21/54/fa2154fc7678e0cd086958c2a2012f01.jpg', NOW(), NOW()),
+('Mì tôm trứng', 'Mì tôm xào với trứng và rau củ', 3, 'https://i.pinimg.com/originals/80/75/1d/80751d6f5b9285bd28567c7c8f8d0d27.jpg', NOW(), NOW()),
+('Mì Ý sốt bò bằm', 'Mì Ý sốt bò bằm đậm đà', 3, 'https://i.pinimg.com/originals/c7/90/00/c79000bec3bc093ade3c0a74f743b075.jpg', NOW(), NOW()),
+('Mì Udon', 'Mì Udon Nhật Bản với nước dùng ngọt thanh', 3, 'https://i.pinimg.com/originals/f0/b0/94/f0b094eb2d1ab1858c630e8cb5c286b6.jpg', NOW(), NOW()),
+
+-- Các món ăn thuộc category "Cơm"
+('Cơm tấm', 'Cơm tấm sườn bì chả', 4, 'https://i.pinimg.com/originals/ff/2f/d2/ff2fd22f5d166455d929a46ed0903777.jpg', NOW(), NOW()),
+('Cơm chiên dương châu', 'Cơm chiên với tôm, thịt, rau củ', 4, 'https://i.pinimg.com/originals/8d/a9/46/8da9460e48572cc3b1608eb88722946b.jpg', NOW(), NOW()),
+('Cơm gà Hải Nam', 'Cơm gà Hải Nam với nước chấm đậm đà', 4, 'https://i.pinimg.com/originals/61/f2/77/61f27755648def139dd1401dee9e8383.jpg', NOW(), NOW()),
+('Cơm sườn nướng', 'Cơm sườn nướng thấm vị', 4, 'https://i.pinimg.com/originals/3e/0d/a2/3e0da25beef0e26c69f886c8dfc3e0c4.jpg', NOW(), NOW()),
+('Cơm rang trứng', 'Cơm rang với trứng và rau củ', 4, 'https://i.pinimg.com/originals/ac/a4/ea/aca4ea5a57e054eca9f4440038bd02f5.jpg', NOW(), NOW()),
+
+-- Các món ăn thuộc category "Trà sữa"
+('Trà sữa trân châu', 'Trà sữa kèm trân châu đen', 5, 'https://i.pinimg.com/originals/59/a6/e6/59a6e61a5742c5a5644e9b177391c90d.jpg', NOW(), NOW()),
+('Trà sữa matcha', 'Trà sữa với vị matcha thơm mát', 5, 'https://i.pinimg.com/originals/93/ce/82/93ce825b3611c641ed2d4f1484c99e53.jpg', NOW(), NOW()),
+('Trà sữa thái xanh', 'Trà sữa với hương vị thái xanh đặc trưng', 5, 'https://i.pinimg.com/originals/87/d6/65/87d665e790fc96ba8580e416c0b285c1.png', NOW(), NOW()),
+('Trà sữa hokkaido', 'Trà sữa hương hokkaido thơm béo', 5, 'https://i.pinimg.com/originals/96/c9/fe/96c9fe2d307f4e8497b9b4c3db15ae6e.jpg', NOW(), NOW()),
+('Trà sữa oolong', 'Trà sữa oolong với hương vị thanh mát', 5, 'https://i.pinimg.com/originals/bb/53/4a/bb534aff5883c4d31df2bdbfb6998620.jpg', NOW(), NOW());
+
+-- Thêm dữ liệu vào bảng stores với 20 cửa hàng
+INSERT INTO stores (store_name, address, phone_number, created_at, updated_at)
+VALUES
+-- 3 cửa hàng cà phê, trà sữa
+('Highlands Coffee', '123 Đường Nguyễn Trãi, Quận 1, TP.HCM', '0901234567', NOW(), NOW()),
+('The Coffee House', '456 Đường Lê Lợi, Quận 3, TP.HCM', '0902345678', NOW(), NOW()),
+('Phúc Long Coffee & Tea', '789 Đường Hai Bà Trưng, Quận 1, TP.HCM', '0903456789', NOW(), NOW()),
+
+-- 4 cửa hàng về cơm
+('Cơm Niêu Sài Gòn', '567 Đường Lý Tự Trọng, Quận 1, TP.HCM', '0909012345', NOW(), NOW()),
+('Cơm Tấm Thuận Kiều', '135 Đường Nguyễn Văn Cừ, Quận 5, TP.HCM', '0900123456', NOW(), NOW()),
+('Cơm Gà Hải Nam', '789 Đường Võ Văn Kiệt, Quận 5, TP.HCM', '0911234567', NOW(), NOW()),
+
+-- 4 cửa hàng về gà
+('Gà Rán KFC', '678 Đường Trần Hưng Đạo, Quận 1, TP.HCM', '0912345678', NOW(), NOW()),
+('Gà Rán Lotteria', '789 Đường Nguyễn Văn Trỗi, Quận Phú Nhuận, TP.HCM', '0913456789', NOW(), NOW()),
+('Gà Nướng Ò Ó O', '135 Đường Cách Mạng Tháng 8, Quận 10, TP.HCM', '0914567890', NOW(), NOW()),
+('Gà Nướng Lu Việt Hương', '246 Đường Phan Xích Long, Quận Phú Nhuận, TP.HCM', '0915678901', NOW(), NOW()),
+
+-- Các cửa hàng bún và mì
+('Bún Bò Huế Đông Ba', '678 Đường Hai Bà Trưng, Quận 1, TP.HCM', '0912345678', NOW(), NOW()),
+('Bún Riêu Cua Ốc Bà Dú', '987 Đường Võ Thị Sáu, Quận 3, TP.HCM', '0913456789', NOW(), NOW()),
+('Bún Chả Hà Nội', '135 Đường Lê Văn Sỹ, Quận Phú Nhuận, TP.HCM', '0914567890', NOW(), NOW()),
+('Bún Thịt Nướng Anh Ba', '246 Đường Nguyễn Đình Chiểu, Quận 3, TP.HCM', '0915678901', NOW(), NOW()),
+('Mì Quảng Hội An', '753 Đường Trần Hưng Đạo, Quận 5, TP.HCM', '0916789012', NOW(), NOW()),
+('Mì Cay Seoul', '369 Đường Cộng Hòa, Quận Tân Bình, TP.HCM', '0917890123', NOW(), NOW());
+
+
+-- Thêm dữ liệu vào bảng store_foods
+
+-- Cửa hàng gà (bán tất cả món gà)
+INSERT INTO store_foods (store_id, food_id, stock_quantity, price)
+VALUES
+(7, 1, 100, 50000),  -- Gà rán tại KFC
+(7, 2, 100, 60000),  -- Gà nướng tại KFC
+(7, 3, 100, 55000),  -- Gà hấp lá chanh tại KFC
+(7, 4, 100, 57000),  -- Gà kho gừng tại KFC
+(7, 5, 100, 50000),  -- Gà xé phay tại KFC
+(8, 1, 100, 50000),  -- Gà rán tại Lotteria
+(8, 2, 100, 60000),  -- Gà nướng tại Lotteria
+(8, 3, 100, 55000),  -- Gà hấp lá chanh tại Lotteria
+(8, 4, 100, 57000),  -- Gà kho gừng tại Lotteria
+(8, 5, 100, 50000),  -- Gà xé phay tại Lotteria
+(9, 1, 100, 52000),  -- Gà rán tại Ò Ó O
+(9, 2, 100, 61000),  -- Gà nướng tại Ò Ó O
+(9, 3, 100, 56000),  -- Gà hấp lá chanh tại Ò Ó O
+(9, 4, 100, 58000),  -- Gà kho gừng tại Ò Ó O
+(9, 5, 100, 52000),  -- Gà xé phay tại Ò Ó O
+(10, 1, 100, 51000), -- Gà rán tại Việt Hương
+(10, 2, 100, 62000), -- Gà nướng tại Việt Hương
+(10, 3, 100, 56000), -- Gà hấp lá chanh tại Việt Hương
+(10, 4, 100, 58000), -- Gà kho gừng tại Việt Hương
+(10, 5, 100, 51000); -- Gà xé phay tại Việt Hương
+
+-- Cửa hàng bún (bán tất cả món bún)
+INSERT INTO store_foods (store_id, food_id, stock_quantity, price)
+VALUES
+(11, 6, 100, 60000),  -- Bún bò Huế tại Đông Ba
+(11, 7, 100, 55000),  -- Bún thịt nướng tại Đông Ba
+(11, 8, 100, 58000),  -- Bún riêu cua tại Đông Ba
+(11, 9, 100, 57000),  -- Bún chả Hà Nội tại Đông Ba
+(11, 10, 100, 65000), -- Bún mắm tại Đông Ba
+(12, 6, 100, 62000),  -- Bún bò Huế tại Bà Dú
+(12, 7, 100, 54000),  -- Bún thịt nướng tại Bà Dú
+(12, 8, 100, 59000),  -- Bún riêu cua tại Bà Dú
+(12, 9, 100, 58000),  -- Bún chả Hà Nội tại Bà Dú
+(12, 10, 100, 67000), -- Bún mắm tại Bà Dú
+(13, 6, 100, 61000),  -- Bún bò Huế tại Hà Nội
+(13, 7, 100, 53000),  -- Bún thịt nướng tại Hà Nội
+(13, 8, 100, 60000),  -- Bún riêu cua tại Hà Nội
+(13, 9, 100, 56000),  -- Bún chả Hà Nội tại Hà Nội
+(13, 10, 100, 64000), -- Bún mắm tại Hà Nội
+(14, 6, 100, 60000),  -- Bún bò Huế tại Anh Ba
+(14, 7, 100, 54000),  -- Bún thịt nướng tại Anh Ba
+(14, 8, 100, 58000),  -- Bún riêu cua tại Anh Ba
+(14, 9, 100, 56000),  -- Bún chả Hà Nội tại Anh Ba
+(14, 10, 100, 66000); -- Bún mắm tại Anh Ba
+
+-- Cửa hàng mì (bán tất cả món mì)
+INSERT INTO store_foods (store_id, food_id, stock_quantity, price)
+VALUES
+(15, 11, 100, 70000),  -- Mì xào hải sản tại Hội An
+(15, 12, 100, 65000),  -- Mì Quảng tại Hội An
+(15, 13, 100, 50000),  -- Mì tôm trứng tại Hội An
+(15, 14, 100, 75000),  -- Mì Ý sốt bò bằm tại Hội An
+(15, 15, 100, 70000),  -- Mì Udon tại Hội An
+(16, 11, 100, 71000),  -- Mì xào hải sản tại Seoul
+(16, 12, 100, 66000),  -- Mì Quảng tại Seoul
+(16, 13, 100, 51000),  -- Mì tôm trứng tại Seoul
+(16, 14, 100, 76000),  -- Mì Ý sốt bò bằm tại Seoul
+(16, 15, 100, 71000);  -- Mì Udon tại Seoul
+
+-- Cửa hàng cơm (bán tất cả món cơm)
+INSERT INTO store_foods (store_id, food_id, stock_quantity, price)
+VALUES
+(4, 16, 100, 55000),  -- Cơm tấm tại Niêu Sài Gòn
+(4, 17, 100, 50000),  -- Cơm chiên dương châu tại Niêu Sài Gòn
+(4, 18, 100, 60000),  -- Cơm gà Hải Nam tại Niêu Sài Gòn
+(4, 19, 100, 65000),  -- Cơm sườn nướng tại Niêu Sài Gòn
+(4, 20, 100, 50000),  -- Cơm rang trứng tại Niêu Sài Gòn
+(5, 16, 100, 56000),  -- Cơm tấm tại Thuận Kiều
+(5, 17, 100, 51000),  -- Cơm chiên dương châu tại Thuận Kiều
+(5, 18, 100, 61000),  -- Cơm gà Hải Nam tại Thuận Kiều
+(5, 19, 100, 66000),  -- Cơm sườn nướng tại Thuận Kiều
+(5, 20, 100, 51000);  -- Cơm rang trứng tại Thuận Kiều
+
+-- Cửa hàng trà sữa (bán tất cả các loại trà sữa)
+INSERT INTO store_foods (store_id, food_id, stock_quantity, price)
+VALUES
+(1, 21, 100, 30000),  -- Trà sữa trân châu tại Highlands Coffee
+(1, 22, 100, 35000),  -- Trà sữa matcha tại Highlands Coffee
+(1, 23, 100, 33000),  -- Trà sữa thái xanh tại Highlands Coffee
+(1, 24, 100, 37000),  -- Trà sữa hokkaido tại Highlands Coffee
+(1, 25, 100, 36000),  -- Trà sữa oolong tại Highlands Coffee
+(2, 21, 100, 31000),  -- Trà sữa trân châu tại The Coffee House
+(2, 22, 100, 36000),  -- Trà sữa matcha tại The Coffee House
+(2, 23, 100, 34000),  -- Trà sữa thái xanh tại The Coffee House
+(2, 24, 100, 38000),  -- Trà sữa hokkaido tại The Coffee House
+(2, 25, 100, 37000),  -- Trà sữa oolong tại The Coffee House
+(3, 21, 100, 32000),  -- Trà sữa trân châu tại Phúc Long
+(3, 22, 100, 37000),  -- Trà sữa matcha tại Phúc Long
+(3, 23, 100, 35000),  -- Trà sữa thái xanh tại Phúc Long
+(3, 24, 100, 39000),  -- Trà sữa hokkaido tại Phúc Long
+(3, 25, 100, 38000);  -- Trà sữa oolong tại Phúc Long
+
+-- Thêm để sửa lại sau
+CREATE TABLE purchases (
+	purchases_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    store_foods_id INT REFERENCES store_foods(store_foods_id),
+    total_price DECIMAL(10, 2),  -- Tổng số tiền của đơn hàng
+    buy_count INT,  -- Tổng số lượng sản phẩm của đơn hàng
+    status INT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+)

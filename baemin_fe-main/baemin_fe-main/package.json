@@ -1,0 +1,51 @@
+{
+  "name": "baemin-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start:dev": "next dev --turbo",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.3.7",
+    "@ant-design/nextjs-registry": "^1.0.0",
+    "@floating-ui/react": "^0.26.24",
+    "@floating-ui/react-dom": "^2.1.2",
+    "@heroicons/react": "^2.1.5",
+    "@hookform/resolvers": "^3.9.0",
+    "@tanstack/react-query": "^5.59.0",
+    "@tanstack/react-query-devtools": "^5.59.0",
+    "antd": "^5.19.0",
+    "axios": "^1.7.7",
+    "classnames": "^2.5.1",
+    "framer-motion": "^11.11.1",
+    "immer": "^10.1.1",
+    "lodash": "^4.17.21",
+    "next": "14.2.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.53.0",
+    "react-toastify": "^10.0.5",
+    "yup": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.10",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8",
+    "eslint-config-next": "14",
+    "postcss": "^8.4.47",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5"
+  },
+  "resolutions": {
+    "string-width": "^4.2.0"
+  }
+}
