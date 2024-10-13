@@ -128,10 +128,10 @@ export default function HeaderNav() {
               className='flex items-center text-[18px] font-normal leading-5 text-gray-500 hover:text-gray-700'
               renderPopover={
                 <div className='relative rounded-sm border border-gray-200 bg-white pl-1 pr-16 text-left shadow-md'>
-                  <Link href={'/profile'} className='block w-full bg-white px-4 py-3 text-left hover:text-cyan-500'>
+                  {/* <Link href={'/profile'} className='block w-full bg-white px-4 py-3 text-left hover:text-cyan-500'>
                     Tài khoản của tôi
-                  </Link>
-                  <Link href={'/'} className='block w-full bg-white px-4 py-3 text-left hover:text-cyan-500'>
+                  </Link> */}
+                  <Link href={'/checkout'} className='block w-full bg-white px-4 py-3 text-left hover:text-cyan-500'>
                     Đơn mua
                   </Link>
                   <button

@@ -20,17 +20,18 @@ import { BuyProductDto } from './dto/BuyProduct.dto';
 import { UpdatePurchaseDto } from './dto/UpdatePurchase.dto';
 import { DeletePurchaseDto } from './dto/DeletePurchase.dto';
 
-@UsePipes(ValidationPipe)
 @UseGuards(JwtAuthGuard)
 @Controller('purchase')
 export class PurchaseController {
   constructor(private readonly purchaseService: PurchaseService) {}
 
+  @UsePipes(ValidationPipe)
   @Post('add-to-cart')
   async addToCart(@User() user: users, @Body() addToCartDto: AddToCartDto) {
     return this.purchaseService.addToCart(user, addToCartDto);
   }
 
+  @UsePipes(ValidationPipe)
   @Get('get-purchases')
   async getPurchases(
     @User() user: users,
@@ -47,11 +48,18 @@ export class PurchaseController {
     return this.purchaseService.updatePurchase(user, updatePurchaseDto);
   }
 
+  @UsePipes(ValidationPipe)
   @Delete('delete-purchases')
   async deletePurchase(
     @User() user: users,
     @Body() deletePurchaseDto: DeletePurchaseDto,
   ) {
     return this.purchaseService.deletePurchases(user, deletePurchaseDto);
+  }
+
+  @UsePipes(ValidationPipe)
+  @Post('buy-products')
+  async buyProducts(@User() user: users, @Body() buyProductDto: BuyProductDto) {
+    return this.purchaseService.buyProducts(user, buyProductDto);
   }
 }

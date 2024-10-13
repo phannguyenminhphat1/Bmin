@@ -116,15 +116,12 @@ export class PurchaseService {
     };
   }
 
-  // Mua ngay
-  async buyProductImmediately(user: users) {}
-
   // Mua hàng
   async buyProducts(user: users, buyProductDto: BuyProductDto) {
-    const { purchase_id } = buyProductDto;
+    const { purchases_id } = buyProductDto;
 
     await this.prismaService.$transaction(async (prisma) => {
-      for (const id of purchase_id) {
+      for (const id of purchases_id) {
         const purchase = await prisma.purchases.findUnique({
           where: { purchases_id: id },
           include: {
@@ -164,7 +161,7 @@ export class PurchaseService {
       // Sau khi kiểm tra và cập nhật tồn kho, cập nhật trạng thái purchases
       await prisma.purchases.updateMany({
         where: {
-          purchases_id: { in: purchase_id },
+          purchases_id: { in: purchases_id },
           user_id: user.user_id,
           status: Status.InCart,
         },
@@ -178,7 +175,7 @@ export class PurchaseService {
     return {
       message: 'Mua hàng thành công',
       data: {
-        purchase_id,
+        purchases_id,
       },
     };
   }
